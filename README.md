@@ -68,8 +68,8 @@ Create `.streamlit/secrets.toml` file
 
 ```toml
 [api_key]
-GOOGLE_API_KEY=your_google_api_key
-TAVILY_API_KEY=your_tavily_api_key
+GOOGLE_API_KEY="your_google_api_key"
+TAVILY_API_KEY="your_tavily_api_key"
 ```
 
 Run the application
