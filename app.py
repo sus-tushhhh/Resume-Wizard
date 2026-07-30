@@ -80,8 +80,8 @@ def main_agent(query: str, agent = agent):
     final_response = agent.invoke({'messages':[{'role':'user', 'content':final_prompt}]})
     final_code = (final_response['messages'][-1].text).strip('```')
 
-    with open('resume.html', 'w', encoding='utf-8') as f:
-        f.write(final_code)
+    # with open('resume.html', 'w', encoding='utf-8') as f:
+    #     f.write(final_code)
 
     return final_code
 
