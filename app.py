@@ -9,6 +9,8 @@ from langchain.tools import tool
 
 import pandas as pd
 import numpy as np
+import base64
+from io import BytesIO
 import time
 
 from PIL import Image
@@ -59,7 +61,10 @@ def main_agent(query: str, agent = agent):
                 and you have to create a detailed resume for students or professional one,
                 it must be with dynamic UI and UX and make sure to give output in HTML format only with
                 advance and professional CSS Designing
-                no markdown allowed
+                add a placeholder for user image which i can easily replace with replace function of python with my
+                image path and write placeholder as USER_IMAGE_PATH_PLACEHOLDER.
+                no markdown allowed, and don't use javascript only html and css
+                strictly don't write html after ```
     """
 
     response = agent.invoke({'messages':[{'role':'user', 'content':prompt}]})
@@ -75,8 +80,8 @@ def main_agent(query: str, agent = agent):
     final_response = agent.invoke({'messages':[{'role':'user', 'content':final_prompt}]})
     final_code = (final_response['messages'][-1].text).strip('```')
 
-    # with open('resume.html', 'w') as f:
-    #     f.write(final_code)
+    with open('resume.html', 'w', encoding='utf-8') as f:
+        f.write(final_code)
 
     return final_code
 
@@ -109,3 +114,41 @@ st.set_page_config(layout='wide',
 
 
 st.title("🪄 Resume Wizard &nbsp;|&nbsp; :green[AI Resume Builder]", text_alignment='center')
+st.sidebar.title("User Details", text_alignment='center')
+
+
+user_image_placeholder = st.sidebar.empty()
+uploaded_image = st.sidebar.file_uploader("", type=['jpg', 'jpeg', 'png'], label_visibility="hidden")
+
+if uploaded_image:
+    img = Image.open(uploaded_image)
+    user_image_placeholder.image(img)
+    image_success_placeholder = st.sidebar.empty()
+    image_success_placeholder.success('Image uploaded :)')
+    time.sleep(2)
+    image_success_placeholder.empty()
+else:
+    img = Image.open(r"assets/user_image_placeholder.png")
+    user_image_placeholder.image(img)
+
+st.sidebar.divider()
+
+resume_desc = st.sidebar.text_area(label="Write resume description : ", placeholder="Name, Education, Experience ...")
+styling_prompt = st.sidebar.text_area(label="Write styling prompt : ", placeholder="Theme, Design, Layout ...")
+
+
+def img_to_base64():
+    buffer = BytesIO()
+    img.save(buffer, format="PNG")
+    img_bytes = buffer.getvalue()
+    base64_string = base64.b64encode(img_bytes).decode("utf-8")
+    return base64_string
+
+
+if st.sidebar.button('Generate Resume'):
+    with st.spinner():
+        code = main_agent(query=resume_desc + styling_prompt)
+        with st.container(border=True, horizontal_alignment='center'):
+            st.html(code.replace('USER_IMAGE_PATH_PLACEHOLDER', f'data:image/png;base64,{img_to_base64()}'))
+
+
