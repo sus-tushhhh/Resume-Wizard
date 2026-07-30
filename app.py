@@ -149,6 +149,9 @@ if st.sidebar.button('Generate Resume'):
     with st.spinner():
         code = main_agent(query=resume_desc + styling_prompt)
         with st.container(border=True, horizontal_alignment='center'):
-            st.html(code.replace('USER_IMAGE_PATH_PLACEHOLDER', f'data:image/png;base64,{img_to_base64()}'))
+            if 'USER_IMAGE_PATH_PLACEHOLDER' in code:
+                st.html(code.replace('USER_IMAGE_PATH_PLACEHOLDER', f'data:image/png;base64,{img_to_base64()}'))
+            else:
+                st.html(code)
 
 
