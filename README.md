@@ -38,8 +38,6 @@ https://resume-wizard-sus-tushhhh.streamlit.app/
 - **LangChain**
 - **Google Gemini**
 - **Tavily Search API**
-- **Markdown**
-- **Environment Variables (.env)**
 
 ---
 
