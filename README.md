@@ -12,6 +12,12 @@ The project also features a configurable prompt-based styling system, allowing u
 
 ---
 
+## 🌐 Live Demo
+
+https://resume-wizard-sus-tushhhh.streamlit.app/
+
+---
+
 # ✨ Features
 
 - 🤖 AI-powered resume generation
