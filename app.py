@@ -116,6 +116,7 @@ st.set_page_config(layout='wide',
 
 
 st.title("🪄 Resume Wizard &nbsp;|&nbsp; :green[AI Resume Builder]", text_alignment='center')
+st.write()
 st.sidebar.title("User Details", text_alignment='center')
 
 
@@ -154,20 +155,20 @@ left, right = st.columns(2)
 if st.sidebar.button('Generate Resume'):
     with left:
         with st.spinner():
-            code = main_agent(query=final_query)
+            resume_code = main_agent(query=final_query)
             with st.container(border=True, horizontal_alignment='center', width='content'):
                 st.subheader(':blue[AI Generated Resume : ]', text_alignment='center')
-                if 'USER_IMAGE_PATH_PLACEHOLDER' in code:
-                    st.html(code.replace('USER_IMAGE_PATH_PLACEHOLDER', f'data:image/png;base64,{img_to_base64()}'))
+                if 'USER_IMAGE_PATH_PLACEHOLDER' in resume_code:
+                    st.html(resume_code.replace('USER_IMAGE_PATH_PLACEHOLDER', f'data:image/png;base64,{img_to_base64()}'))
                 else:
-                    st.html(code)
+                    st.html(resume_code)
 
     with right:
         with st.spinner():
-            code = get_jobs(profile=final_query)
+            jobs_code = get_jobs(profile=final_query)
             with st.container(border=True, horizontal_alignment='center', width='content'):
                 st.subheader(':blue[Latest Jobs : ]', text_alignment='center')
-                st.html(code)
+                st.html(jobs_code)
 
         
 
