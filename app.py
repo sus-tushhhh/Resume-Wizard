@@ -93,7 +93,9 @@ def get_jobs(agent = agent, location = "Delhi", profile = "Data Analyst, AI Engi
     using naukri, linkedin, indeed, or all popular platforms, show results with job profile name,
     location, salary, company name, apply link, show jobs only related to {location} and {profile}.
     Output must be in professional HTML Naukri theme cards with dynamic design, show atleast top 10-20
-    results with direct apply link and don't write html after ```                
+    results with direct apply link and 
+    
+    strictly don't write html after ```                
     """ + ('.' if not config else config)
 
     response = agent.invoke({'messages' : [{'role': 'user', 'content': prompt}]})
@@ -134,8 +136,10 @@ else:
 st.sidebar.divider()
 
 resume_desc = st.sidebar.text_area(label="Write resume description : ", placeholder="Name, Education, Experience ...")
+skills = st.sidebar.multiselect(label='Add skills :', options=[''], accept_new_options=True)
 styling_prompt = st.sidebar.text_area(label="Write styling prompt : ", placeholder="Theme, Design, Layout ...")
 
+final_query = resume_desc + ''.join(skills) + styling_prompt
 
 def img_to_base64():
     buffer = BytesIO()
@@ -145,13 +149,26 @@ def img_to_base64():
     return base64_string
 
 
+left, right = st.columns(2)
+
 if st.sidebar.button('Generate Resume'):
-    with st.spinner():
-        code = main_agent(query=resume_desc + styling_prompt)
-        with st.container(border=True, horizontal_alignment='center'):
-            if 'USER_IMAGE_PATH_PLACEHOLDER' in code:
-                st.html(code.replace('USER_IMAGE_PATH_PLACEHOLDER', f'data:image/png;base64,{img_to_base64()}'))
-            else:
+    with left:
+        with st.spinner():
+            code = main_agent(query=final_query)
+            with st.container(border=True, horizontal_alignment='center', width='content'):
+                st.subheader(':blue[AI Generated Resume : ]', text_alignment='center')
+                if 'USER_IMAGE_PATH_PLACEHOLDER' in code:
+                    st.html(code.replace('USER_IMAGE_PATH_PLACEHOLDER', f'data:image/png;base64,{img_to_base64()}'))
+                else:
+                    st.html(code)
+
+    with right:
+        with st.spinner():
+            code = get_jobs(profile=final_query)
+            with st.container(border=True, horizontal_alignment='center', width='content'):
+                st.subheader(':blue[Latest Jobs : ]', text_alignment='center')
                 st.html(code)
+
+        
 
 
