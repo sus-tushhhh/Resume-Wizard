@@ -10,8 +10,9 @@ from langchain.tools import tool
 import pandas as pd
 import numpy as np
 import base64
-from io import BytesIO
 import time
+from io import BytesIO
+from weasyprint import HTML
 
 from PIL import Image
 
@@ -64,7 +65,7 @@ def main_agent(query: str, agent = agent):
                 add a placeholder for user image which i can easily replace with replace function of python with my
                 image path and write placeholder as USER_IMAGE_PATH_PLACEHOLDER.
                 no markdown allowed, and don't use javascript only html and css
-                strictly don't write html after ```
+                strictly don't write html after ``` and
     """
 
     response = agent.invoke({'messages':[{'role':'user', 'content':prompt}]})
@@ -99,9 +100,12 @@ def get_jobs(agent = agent, location = "Delhi", profile = "Data Analyst, AI Engi
     """ + ('.' if not config else config)
 
     response = agent.invoke({'messages' : [{'role': 'user', 'content': prompt}]})
-    code = (response['messages'][-1].text).strip('```')
+    final_code = (response['messages'][-1].text).strip('```')
 
-    return code
+    # with open('jobs.html', 'w', encoding='utf-8') as f:
+    #     f.write(final_code)
+
+    return final_code
 
 
 # Frontend------------------------------------------------------------------------------------------------
@@ -116,7 +120,7 @@ st.set_page_config(layout='wide',
 
 
 st.title("🪄 Resume Wizard &nbsp;|&nbsp; :green[AI Resume Builder]", text_alignment='center')
-st.write()
+st.write(" ")
 st.sidebar.title("User Details", text_alignment='center')
 
 
@@ -137,7 +141,7 @@ else:
 st.sidebar.divider()
 
 resume_desc = st.sidebar.text_area(label="Write resume description : ", placeholder="Name, Education, Experience ...")
-skills = st.sidebar.multiselect(label='Add skills :', options=[''], accept_new_options=True)
+skills = st.sidebar.multiselect(label='Add skills :', options=['AI', 'Data Science', 'ML'], accept_new_options=True)
 styling_prompt = st.sidebar.text_area(label="Write styling prompt : ", placeholder="Theme, Design, Layout ...")
 
 final_query = resume_desc + ''.join(skills) + styling_prompt
@@ -154,21 +158,35 @@ left, right = st.columns(2)
 
 if st.sidebar.button('Generate Resume'):
     with left:
-        with st.spinner():
-            resume_code = main_agent(query=final_query)
-            with st.container(border=True, horizontal_alignment='center', width='content'):
-                st.subheader(':blue[AI Generated Resume : ]', text_alignment='center')
+        with st.container(border=True, horizontal_alignment='center', width='content', height=1440):
+            heading_section, button_section = st.columns([3, 1])
+            with heading_section:
+                st.subheader(':blue[AI Generated Resume : ]')
+
+            with st.spinner():
+                resume_code = main_agent(query=final_query)
                 if 'USER_IMAGE_PATH_PLACEHOLDER' in resume_code:
-                    st.html(resume_code.replace('USER_IMAGE_PATH_PLACEHOLDER', f'data:image/png;base64,{img_to_base64()}'))
-                else:
+                    resume_code = resume_code.replace('USER_IMAGE_PATH_PLACEHOLDER', f'data:image/png;base64,{img_to_base64()}')
+                    st.html(resume_code)
+                else: 
                     st.html(resume_code)
 
+            buffer = BytesIO(resume_code.encode('utf-8'))
+
+            with button_section:
+                st.download_button(label='Download HTML',
+                                    data=buffer,
+                                    file_name='resume_wizard.html',
+                                    mime='application/html')
+                    
     with right:
-        with st.spinner():
-            jobs_code = get_jobs(profile=final_query)
-            with st.container(border=True, horizontal_alignment='center', width='content'):
-                st.subheader(':blue[Latest Jobs : ]', text_alignment='center')
+        with st.container(border=True, width='content', height=1440):
+            st.subheader(':blue[Latest Jobs : ]', text_alignment='center')
+            with st.spinner():
+                jobs_code = get_jobs(profile=final_query)
                 st.html(jobs_code)
+
+    
 
         
 
