@@ -12,7 +12,6 @@ import numpy as np
 import base64
 import time
 from io import BytesIO
-from weasyprint import HTML
 
 from PIL import Image
 
