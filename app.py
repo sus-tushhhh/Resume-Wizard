@@ -138,8 +138,6 @@ else:
     img = Image.open(r"assets/user_image_placeholder.png")
     user_image_placeholder.image(img)
 
-st.sidebar.divider()
-
 resume_desc = st.sidebar.text_area(label="Write resume description : ", placeholder="Name, Education, Experience ...")
 skills = st.sidebar.multiselect(label='Add skills :', options=['AI', 'Data Science', 'ML'], accept_new_options=True)
 styling_prompt = st.sidebar.text_area(label="Write styling prompt : ", placeholder="Theme, Design, Layout ...")
@@ -156,7 +154,7 @@ def img_to_base64():
 
 left, right = st.columns(2)
 
-if st.sidebar.button('Generate Resume'):
+if st.sidebar.button('Generate Resume', shortcut='Enter'):
     with left:
         with st.container(border=True, horizontal_alignment='center', width='content', height=1440):
             heading_section, button_section = st.columns([3, 1])
@@ -172,7 +170,6 @@ if st.sidebar.button('Generate Resume'):
                     st.html(resume_code)
 
             buffer = BytesIO(resume_code.encode('utf-8'))
-
             with button_section:
                 st.download_button(label='Download HTML',
                                     data=buffer,
